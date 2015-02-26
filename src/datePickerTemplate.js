@@ -10,7 +10,7 @@ angular.module("template/ng-datepicker.html", []).run(["$templateCache", functio
         </div>
     </div>
     <div class="datepicker content body">
-        <div class="mounth" layout="row">
+        <div class="mounth" layout="row" layout-align="center center">
 
             <md-button type="button" class="left button" flex  ng-click="previousMounth()" ng-disabled="selectMounth<=0">
                

@@ -6,9 +6,8 @@ angular.module('md-datepicker',[])
     .directive('datepicker',['$compile',function($compile) {
         'use strict';
 
-        // WTF Day begin by Sunday in javasript
-        var frenchDay = ['dimanche','lundi', 'mardi' , 'mercredi' , 'jeudi' , 'vendredi', 'samedi'];
-        var frenchMinDay = ['D','L', 'M' , 'M' , 'J' , 'V', 'S'];
+        var frenchDay = ['lundi', 'mardi' , 'mercredi' , 'jeudi' , 'vendredi', 'samedi','dimanche'];
+        var frenchMinDay = ['L', 'M' , 'M' , 'J' , 'V', 'S','D'];
         var frenchMounth = ['janvier' , 'fevrier', 'mars' , 'avril' , 'mai' ,'juin' , 'juillet' , 'aout', 'septembre' , 'octobre' , 'novembre' , 'decembre'];
 
 
@@ -43,7 +42,7 @@ angular.module('md-datepicker',[])
             var triggerRange = 1;
             var loadPerTrigger = 7;
             var weekDayNames = [];
-            var startDayOfWeek= 1;
+            var startDayOfWeek= 1; /* Day begin by Sunday in javasript 0 :Sundat 1 Monday */
             scope.months = [];
             scope.selectMounth = 0;
             var nonNumericDates = false;
@@ -74,7 +73,7 @@ angular.module('md-datepicker',[])
                 date = new Date(scope.curYear, scope.curMonth, 0);
                 endPoint = date.getDate();
 
-                for(var i=0;i<=startPoint;i++){
+                for(var i=0;i<startPoint;i++){
                     month.days.push(undefined);
                 }
 
@@ -89,7 +88,11 @@ angular.module('md-datepicker',[])
                 for(var i=0; i<=5 ; i++){
                     var start = i*7;
                     var add = 7;
-                    month.weeks.push( month.days.slice(start, i*7 + add));
+                    var tmpWeek = month.days.slice(start, i*7 + add);
+                    while(tmpWeek.length <7){
+                        tmpWeek.push(undefined);
+                    }
+                    month.weeks.push( tmpWeek);
                 }
 
                 scope.months.push(month);
@@ -108,6 +111,7 @@ angular.module('md-datepicker',[])
             scope.previousMounth = function(){
                 scope.selectMounth--;
             };
+            console.log(scope.months)
 
         }
         return{
@@ -122,31 +126,27 @@ angular.module('md-datepicker',[])
                         '</div> '+
                     '</div> '+
                     '<div class="datepicker content body"> '+
-                     '   <div class="mounth" layout="row"> '+
-                    '        <md-button  class="left button" flex  ng-click="previousMounth()" ng-disabled="selectMounth<=0"> '+
+                     '   <div class="mounth" layout="row"  > '+
+                    '        <md-button  class="left button" flex  ng-click="previousMounth()" ng-disabled="selectMounth<=0" flex> '+
                      '          <        '+
                     '        </md-button> '+
-                    '        <span flex>{{frenchMounth[months[selectMounth].number]}} {{months[selectMounth].year}}</span> '+
-                    '        <md-button  class="right button " flex ng-click="nextMounth()" ng-submit="false" > '+
+                    '        <span >{{frenchMounth[months[selectMounth].number]}} {{months[selectMounth].year}}</span> '+
+                    '        <md-button  class="right button " flex ng-click="nextMounth()" ng-submit="false" flex> '+
                     '            > '+
                     '        </md-button> '+
                     '    </div> '+
                     '    <div class="calendarNumber"> '+
-
-
-                    '        <div  class="row" > '+
+                    '        <div  class="row title-day" > '+
                     '            <div ng-repeat=" day in frenchMinDay track by $index"  class="calendarDayNumber " flex>{{day}} </div> '+
                     '        </div> '+
                     '       <div ng-repeat=" weeks in months[selectMounth].weeks track by $index"  class="row" > '+
-                    '           <div ng-repeat=" day in weeks track by $index"  class="calendarDayNumber" > '+
-                    '              <div ng-if="day === undefined"> '+
-                    '                  <div class="day"></div> '+
-                    '              </div> '+
-                    '              <div ng-if="day != undefined"  > '+
-                    '                 <div class="day" enabled="{{day.enabled}}" data-date="{{day.n}}" data-month="{{month.number}}" data-year="{{month.year}}"> '+
-                    '                     <span>{{day.n}}</span> '+
-                    '                    </div> '+
-                    '                </div> '+
+                    '           <div ng-repeat=" day in weeks track by $index"  class="calendarDayNumber" flex> '+
+                    '                  <div ng-if="day === undefined" class="day" noflex></div> '+
+                    '                 <div ng-if="day != undefined" class="day"  enabled="{{day.enabled}}" data-date="{{day.n}}" data-month="{{month.number}}" data-year="{{month.year}}"   noflex> '+
+                    '                      <md-button class="md-fab" >'+
+                    '                       <span>{{day.n}}</span> '+
+                    '                       </md-button>'+
+                    '                  </div> '+
                     '            </div> '+
                     '        </div> '+
                     '    </div> '+
