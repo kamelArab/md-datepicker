@@ -85,7 +85,7 @@
     height: 100%;
     padding-top: 6px;
     padding-bottom: 6px;
-    border: 1px solid;
+   
 }
 .datepicker.content.body .mounth span{
     vertical-align: middle;
@@ -119,6 +119,10 @@
     font-weight: 500;
     color: rgba(0, 0, 0, 0.5);
     line-height: 12px;
+}
+.datepicker .md-button.md-default-theme.md-fab:not([disabled]):hover{
+    background-color: #0097A7;
+    color: #ffffff;
 }
 .right{
     float: right;
