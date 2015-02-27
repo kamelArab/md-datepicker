@@ -67,7 +67,7 @@ angular.module('md-datepicker',[])
                     weeks:[],
                     days: [],
                     name: "",
-                    number: scope.curMonth,
+                    mounth: scope.curMonth,
                     year: scope.curYear
                 };
 
@@ -115,6 +115,9 @@ angular.module('md-datepicker',[])
             scope.previousMounth = function(){
                 scope.selectMounth--;
             };
+            scope.selectedDate = function(year,month,day){
+                scope.pickDate = new Date(year,month,day);
+            }
             
             console.log(scope.months)
 
@@ -125,9 +128,9 @@ angular.module('md-datepicker',[])
                        '    <div class="datepicker header md-primary" layout="column" layout-align="center center" >' +
                         '<div class="datepicker header day"> {{frenchDay[calculateDay(pickDate.getDay())]}}</div> '+
                         '<div class="datepicker header body"> '+
-                        '    <div class="mounth">{{frenchMounth[months[0].number]}}</div> '+
+                        '    <div class="mounth">{{frenchMounth[pickDate.getMonth()]}}</div> '+
                         '    <div class="day">{{pickDate.getDate()}}</div> '+
-                        '    <div class="year">{{months[0].year}}</div> '+
+                        '    <div class="year">{{pickDate.getFullYear()}}</div> '+
                         '</div> '+
                     '</div> '+
                     '<div class="datepicker content body"> '+
@@ -135,7 +138,7 @@ angular.module('md-datepicker',[])
                     '        <md-button  class="left button" flex  ng-click="previousMounth()" ng-disabled="selectMounth<=0" flex> '+
                      '          <        '+
                     '        </md-button> '+
-                    '        <span >{{frenchMounth[months[selectMounth].number]}} {{months[selectMounth].year}}</span> '+
+                    '        <span >{{frenchMounth[months[selectMounth].mounth]}} {{months[selectMounth].year}}</span> '+
                     '        <md-button  class="right button " flex ng-click="nextMounth()" ng-submit="false" flex> '+
                     '            > '+
                     '        </md-button> '+
@@ -147,8 +150,8 @@ angular.module('md-datepicker',[])
                     '       <div ng-repeat=" weeks in months[selectMounth].weeks track by $index"  class="row" > '+
                     '           <div ng-repeat=" day in weeks track by $index"  class="calendarDayNumber" flex> '+
                     '                  <div ng-if="day === undefined" class="day" noflex></div> '+
-                    '                 <div ng-if="day != undefined" class="day"  enabled="{{day.enabled}}" data-date="{{day.n}}" data-month="{{month.number}}" data-year="{{month.year}}"   noflex> '+
-                    '                      <md-button class="md-fab" >'+
+                    '                 <div ng-if="day != undefined" class="day"  enabled="{{day.enabled}}" data-date="{{day.n}}"    noflex> '+
+                    '                      <md-button class="md-fab" ng-click="selectedDate(months[selectMounth].year,months[selectMounth].mounth,day.n )">'+
                     '                       <span>{{day.n}}</span> '+
                     '                       </md-button>'+
                     '                  </div> '+
