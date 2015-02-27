@@ -108,6 +108,10 @@
  div.day[enabled=true]{
    /* border: 1px solid;*/
 }
+.datepicker div.day[date-selected=true] .md-button.md-default-theme.md-fab  {
+    background-color: #0097A7;
+    color: #ffffff;
+}
 .datepicker .md-button.md-default-theme.md-fab{
     background-color: transparent;
     color:inherit;

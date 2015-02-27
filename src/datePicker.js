@@ -150,7 +150,7 @@ angular.module('md-datepicker',[])
                     '       <div ng-repeat=" weeks in months[selectMounth].weeks track by $index"  class="row" > '+
                     '           <div ng-repeat=" day in weeks track by $index"  class="calendarDayNumber" flex> '+
                     '                  <div ng-if="day === undefined" class="day" noflex></div> '+
-                    '                 <div ng-if="day != undefined" class="day"  enabled="{{day.enabled}}" data-date="{{day.n}}"    noflex> '+
+                    '                 <div ng-if="day != undefined" class="day"  enabled="{{day.enabled}}" data-date="{{day.n}}"  date-selected="{{day.n == pickDate.getDate() && months[selectMounth].mounth == pickDate.getMonth() && months[selectMounth].year == pickDate.getFullYear() }}"  noflex> '+
                     '                      <md-button class="md-fab" ng-click="selectedDate(months[selectMounth].year,months[selectMounth].mounth,day.n )">'+
                     '                       <span>{{day.n}}</span> '+
                     '                       </md-button>'+
