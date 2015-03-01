@@ -43,7 +43,7 @@ angular.module('md-datepicker',[])
             var triggerRange = 1;
             var loadPerTrigger = 7;
             var weekDayNames = [];
-            var startDayOfWeek= 1; /* Day begin by Sunday in javasript 0 :Sundat 1 Monday */
+            var startDayOfWeek= 1; /* Day begin by Sunday in javasript 0:Sunday, 1:Monday, ... */
             scope.months = [];
             scope.selectMounth = 0;
             var nonNumericDates = false;
@@ -73,8 +73,8 @@ angular.module('md-datepicker',[])
 
                 date = new Date(scope.curYear, scope.curMonth, 1);
                 startPoint = scope.calculateDay(date.getDay());
-                month.name = frenchMounth[scope.curMonth];/*Intl.DateTimeFormat(this.locale, {month: 'long', year: 'numeric' }).format(date);*/
-                date = new Date(scope.curYear, scope.curMonth, 0);
+                month.name = frenchMounth[scope.curMonth];
+                date = new Date(scope.curYear, scope.curMonth +1, 0);
                 endPoint = date.getDate();
 
                 for(var i=0;i<startPoint;i++){
@@ -85,7 +85,7 @@ angular.module('md-datepicker',[])
                     var thisDate = new Date(scope.curYear, scope.curMonth, i);
                     month.days.push({
                         n:i,
-                        day: frenchDay[thisDate.getDay()]/*this.intl.day(thisDate)*/,
+                        day: frenchDay[scope.calculateDay(thisDate.getDay())],
                         enabled: thisDate >= min && thisDate <= max
                     });
                 }
@@ -116,11 +116,10 @@ angular.module('md-datepicker',[])
                 scope.selectMounth--;
             };
             scope.selectedDate = function(year,month,day){
-                scope.pickDate = new Date(year,month,day);
+                scope.pickDate = new Date(year,month -1,day);
             }
             
             console.log(scope.months)
-
         }
         return{
             restrict : 'E',
@@ -149,18 +148,22 @@ angular.module('md-datepicker',[])
                     '        </div> '+
                     '       <div ng-repeat=" weeks in months[selectMounth].weeks track by $index"  class="row" > '+
                     '           <div ng-repeat=" day in weeks track by $index"  class="calendarDayNumber" flex> '+
-                    '                  <div ng-if="day === undefined" class="day" noflex></div> '+
-                    '                 <div ng-if="day != undefined" class="day"  enabled="{{day.enabled}}" data-date="{{day.n}}"  date-selected="{{day.n == pickDate.getDate() && months[selectMounth].mounth == pickDate.getMonth() && months[selectMounth].year == pickDate.getFullYear() }}"  noflex> '+
-                    '                      <md-button class="md-fab" ng-click="selectedDate(months[selectMounth].year,months[selectMounth].mounth,day.n )">'+
+                    '               <div ng-if="day === undefined" class="day" noflex></div> '+
+                    '               <div ng-if="day != undefined" class="day"  enabled="{{day.enabled}}" data-date="{{day.n}}"  date-selected="{{day.n == pickDate.getDate() && months[selectMounth].mounth == pickDate.getMonth() && months[selectMounth].year == pickDate.getFullYear() }}"  noflex> '+
+                    '                   <md-button class="md-fab" ng-click="selectedDate(months[selectMounth].year,months[selectMounth].mounth,day.n )">'+
                     '                       <span>{{day.n}}</span> '+
-                    '                       </md-button>'+
-                    '                  </div> '+
+                    '                  </md-button>'+
+                    '               </div> '+
                     '            </div> '+
                     '        </div> '+
                     '    </div> '+
+                    '    <div class="calendar-action"  layout="row">'+
+                    '       <md-button flex>Cancel</md-button>'+
+                    '       <md-button flex>ok</md-button>'+
+                    '    </div>'+
                     '    <div>Mois + année slide</div> '+
                     '    <div>Calendar</div> '+
-                    
+                    '    <div> pickDate.getMonth() == {{pickDate.getMonth()}}'+
                     '    <div> selectMounth == {{selectMounth}}</div> '+
                     '</div> '+
                     '</div>',
