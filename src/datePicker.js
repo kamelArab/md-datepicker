@@ -39,6 +39,7 @@ angular.module('md-datepicker',[])
             scope.frenchMinDay = frenchMinDay;
             scope.pickDate = new Date();
             scope.currentYear, scope.currentMonth , scope.currentDay = 0;
+            scope.animateDate = "animateDate"
             var loadedRange = 14;
             var triggerRange = 1;
             var loadPerTrigger = 7;
@@ -74,7 +75,7 @@ angular.module('md-datepicker',[])
                 date = new Date(scope.curYear, scope.curMonth, 1);
                 startPoint = scope.calculateDay(date.getDay());
                 month.name = frenchMounth[scope.curMonth];
-                date = new Date(scope.curYear, scope.curMonth +1, 0);
+                date = new Date(scope.curYear, scope.curMonth +1, 0); /*Last day in same mounth*/
                 endPoint = date.getDate();
 
                 for(var i=0;i<startPoint;i++){
@@ -116,7 +117,12 @@ angular.module('md-datepicker',[])
                 scope.selectMounth--;
             };
             scope.selectedDate = function(year,month,day){
-                scope.pickDate = new Date(year,month -1,day);
+                scope.pickDate = new Date(year,month,day);
+                if(scope.animateDate == "scope.animateDate"){
+                    scope.animateDate = "";
+                }else{
+                    scope.animateDate = "animateDate";
+                }
             }
             
             console.log(scope.months)
@@ -125,7 +131,7 @@ angular.module('md-datepicker',[])
             restrict : 'E',
             template : '<div class="datepicker">'+ 
                        '    <div class="datepicker header md-primary" layout="column" layout-align="center center" >' +
-                        '<div class="datepicker header day"> {{frenchDay[calculateDay(pickDate.getDay())]}}</div> '+
+                        '<div class="datepicker header day {{animateDate}}"> {{frenchDay[calculateDay(pickDate.getDay())]}}</div> '+
                         '<div class="datepicker header body"> '+
                         '    <div class="mounth">{{frenchMounth[pickDate.getMonth()]}}</div> '+
                         '    <div class="day">{{pickDate.getDate()}}</div> '+
