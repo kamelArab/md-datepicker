@@ -55,13 +55,18 @@ angular.module('md-datepicker',[])
             var format = attrs.format || 'shortDate';
             if(attrs.mindate){
                 var mindateArray =  attrs.mindate.split('/');
-                min = new Date(parseInt(mindateArray[0]),parseInt(mindateArray[1]) -1,1);
+                min = new Date(parseInt(mindateArray[1]),parseInt(mindateArray[0]) -1,1);
             }
+            if(attrs.maxdate){
+                var maxdateArray =  attrs.maxdate.split('/');
+                max = new Date(parseInt(maxdateArray[1]),parseInt(maxdateArray[0]) -1,1);
+            }
+
             
            
             var date, start, end;
-            start = cleanMonthDateArrayObject([scope.pickDate.getMonth(),scope.pickDate.getFullYear()]);
-            end = cleanMonthDateArrayObject([12,2100]);
+            start = cleanMonthDateArrayObject([min.getMonth(),min.getFullYear()]);
+            end = cleanMonthDateArrayObject([max.getMonth(),max.getFullYear()]);
             scope.currentDay= scope.pickDate.getDate();
             scope.curMonth = start[0];
             scope.curYear = start[1];
@@ -106,6 +111,10 @@ angular.module('md-datepicker',[])
                     month.weeks.push( tmpWeek);
                 }
 
+                if (month.year <= scope.pickDate.getFullYear() && month.mounth < scope.pickDate.getMonth()){
+                    scope.selectMounth++;
+                };
+                 
                 scope.months.push(month);
 
                 scope.curMonth++;
@@ -133,7 +142,7 @@ angular.module('md-datepicker',[])
 
             scope.save = function(){
                 scope._modelValue = $filter('date')(scope.pickDate, format);
-                ngModel.$setDirty();
+               // ngModel.$setDirty();
             }
 
 
@@ -190,7 +199,7 @@ angular.module('md-datepicker',[])
             link : link,
            scope : {
                 mindate : '=?', /* format M/yyyy en_US locale */
-                maxdate : '=?';
+                maxdate : '=?',
                 _modelValue: '=ngModel',
                 format : '=?'
 
