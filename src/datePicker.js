@@ -52,7 +52,12 @@ angular.module('md-datepicker',[])
             scope.calculateDay = function(dateDay){
                 return (dateDay - startDayOfWeek + 7) % 7;
             };
-            var format = attrs.format || 'shortDate' 
+            var format = attrs.format || 'shortDate';
+            if(attrs.mindate){
+                var mindateArray =  attrs.mindate.split('/');
+                min = new Date(parseInt(mindateArray[0]),parseInt(mindateArray[1]) -1,1);
+            }
+            
            
             var date, start, end;
             start = cleanMonthDateArrayObject([scope.pickDate.getMonth(),scope.pickDate.getFullYear()]);
@@ -184,9 +189,10 @@ angular.module('md-datepicker',[])
                     '</div>',
             link : link,
            scope : {
-                beginDate : '=?',
+                mindate : '=?', /* format M/yyyy en_US locale */
+                maxdate : '=?';
                 _modelValue: '=ngModel',
-                _format : '='
+                format : '=?'
 
              }
         }
