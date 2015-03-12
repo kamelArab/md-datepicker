@@ -29,11 +29,12 @@
 
 
 </head>
-<body ng-app="myApp">
-    <div style="height: 1200px;">
-    {{ 'World' | greet }}
+<body ng-app="myApp" ng-controller="totoCtrl">
 
-    <datepicker ></datepicker>
+    <div style="height: 1200px;">
+    {{ 'World' | greet }} // {{toto}}
+
+    <datepicker ng-model="toto" format="dd-MM-yyyy"></datepicker>
 </div>
 </body>
 </html>

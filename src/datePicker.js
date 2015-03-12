@@ -3,7 +3,7 @@
  */
 
 angular.module('md-datepicker',[])
-    .directive('datepicker',['$compile',function($compile) {
+    .directive('datepicker',['$compile','$filter',function($compile, $filter) {
         'use strict';
 
         var frenchDay = ['lundi', 'mardi' , 'mercredi' , 'jeudi' , 'vendredi', 'samedi','dimanche'];
@@ -52,7 +52,8 @@ angular.module('md-datepicker',[])
             scope.calculateDay = function(dateDay){
                 return (dateDay - startDayOfWeek + 7) % 7;
             };
-
+            var format = attrs.format || 'shortDate' 
+           
             var date, start, end;
             start = cleanMonthDateArrayObject([scope.pickDate.getMonth(),scope.pickDate.getFullYear()]);
             end = cleanMonthDateArrayObject([12,2100]);
@@ -124,11 +125,19 @@ angular.module('md-datepicker',[])
                     scope.animateDate = "animateDate";
                 }
             }
+
+            scope.save = function(){
+                scope._modelValue = $filter('date')(scope.pickDate, format);
+                ngModel.$setDirty();
+            }
+
+
             
             console.log(scope.months)
         }
         return{
             restrict : 'E',
+            require: '^ngModel',
             template : '<div class="datepicker">'+ 
                        '    <div class="datepicker header md-primary" layout="column" layout-align="center center" >' +
                         '<div class="datepicker header day {{animateDate}}"> {{frenchDay[calculateDay(pickDate.getDay())]}}</div> '+
@@ -165,7 +174,7 @@ angular.module('md-datepicker',[])
                     '    </div> '+
                     '    <div class="calendar-action"  layout="row">'+
                     '       <md-button flex>Cancel</md-button>'+
-                    '       <md-button flex>ok</md-button>'+
+                    '       <md-button flex ng-click="save()">OK</md-button>'+
                     '    </div>'+
                     '    <div>Mois + année slide</div> '+
                     '    <div>Calendar</div> '+
@@ -173,10 +182,13 @@ angular.module('md-datepicker',[])
                     '    <div> selectMounth == {{selectMounth}}</div> '+
                     '</div> '+
                     '</div>',
-            link : link
-           /* scope : {
-                beginDate : '='
-            }*/
+            link : link,
+           scope : {
+                beginDate : '=?',
+                _modelValue: '=ngModel',
+                _format : '='
+
+             }
         }
     }]);
 
