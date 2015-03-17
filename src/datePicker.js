@@ -3,7 +3,7 @@
  */
 
 angular.module('md-datepicker',[])
-    .directive('datepicker',['$compile','$filter',function($compile, $filter) {
+    .directive('datepicker',['$filter',function( $filter) {
         'use strict';
 
         var frenchDay = ['lundi', 'mardi' , 'mercredi' , 'jeudi' , 'vendredi', 'samedi','dimanche'];
@@ -33,26 +33,22 @@ angular.module('md-datepicker',[])
             return [m < 0 ? m + 12: m, obj[1]+Math.floor(obj[0]/12)];
         };
 
+        function controller($scope, $element){
+           
+        }
+
         function link(scope, element, attrs){
             scope.frenchDay = frenchDay;
             scope.frenchMounth = frenchMounth;
             scope.frenchMinDay = frenchMinDay;
             scope.pickDate = new Date();
-            scope.currentYear, scope.currentMonth , scope.currentDay = 0;
             scope.animateDate = "animateDate"
-            var loadedRange = 14;
-            var triggerRange = 1;
-            var loadPerTrigger = 7;
-            var weekDayNames = [];
             var startDayOfWeek= 1; /* Day begin by Sunday in javasript 0:Sunday, 1:Monday, ... */
             scope.months = [];
             scope.selectMounth = 0;
-            var nonNumericDates = false;
             scope.calendarDay = [];
-            scope.calculateDay = function(dateDay){
-                return (dateDay - startDayOfWeek + 7) % 7;
-            };
-            var format = attrs.format || 'shortDate';
+
+
             if(attrs.mindate){
                 var mindateArray =  attrs.mindate.split('/');
                 min = new Date(parseInt(mindateArray[1]),parseInt(mindateArray[0]) -1,1);
@@ -62,31 +58,33 @@ angular.module('md-datepicker',[])
                 max = new Date(parseInt(maxdateArray[1]),parseInt(maxdateArray[0]) -1,1);
             }
 
-            
-           
-            var date, start, end;
+            scope.calculateDay = function(dateDay){
+                return (dateDay - startDayOfWeek + 7) % 7;
+            };
+
+            var date, start, end, currentDay, curMonth, curYear ;
             start = cleanMonthDateArrayObject([min.getMonth(),min.getFullYear()]);
             end = cleanMonthDateArrayObject([max.getMonth(),max.getFullYear()]);
-            scope.currentDay= scope.pickDate.getDate();
-            scope.curMonth = start[0];
-            scope.curYear = start[1];
-            var date, startPoint, endPoint
+            currentDay= scope.pickDate.getDate();
+            curMonth = start[0];
+            curYear = start[1];
+            var date, startPoint, endPoint;
 
             scope.months = [];
-            while(scope.curYear < end[1] || (scope.curYear == end[1] && scope.curMonth <= end[0])){
+            while(curYear < end[1] || (curYear == end[1] && curMonth <= end[0])){
 
                 var month = {
                     weeks:[],
                     days: [],
                     name: "",
-                    mounth: scope.curMonth,
-                    year: scope.curYear
+                    mounth: curMonth,
+                    year: curYear
                 };
 
-                date = new Date(scope.curYear, scope.curMonth, 1);
+                date = new Date(curYear, curMonth, 1);
                 startPoint = scope.calculateDay(date.getDay());
-                month.name = frenchMounth[scope.curMonth];
-                date = new Date(scope.curYear, scope.curMonth +1, 0); /*Last day in same mounth*/
+                month.name = frenchMounth[curMonth];
+                date = new Date(curYear, curMonth +1, 0); /*Last day in same mounth*/
                 endPoint = date.getDate();
 
                 for(var i=0;i<startPoint;i++){
@@ -94,7 +92,7 @@ angular.module('md-datepicker',[])
                 }
 
                 for(var i=1;i<=endPoint;i++){
-                    var thisDate = new Date(scope.curYear, scope.curMonth, i);
+                    var thisDate = new Date(curYear, curMonth, i);
                     month.days.push({
                         n:i,
                         day: frenchDay[scope.calculateDay(thisDate.getDay())],
@@ -117,13 +115,15 @@ angular.module('md-datepicker',[])
                  
                 scope.months.push(month);
 
-                scope.curMonth++;
-                if(scope.curMonth == 13){
-                    scope.curMonth = 1;
-                    scope.curYear++;
+                curMonth++;
+                if(curMonth == 12){
+                    curMonth = 0;
+                    curYear++;
                 }
 
             }
+            console.log(scope.months)
+            var format = attrs.format || 'shortDate';
             scope.nextMounth = function(){
                 scope.selectMounth++;
                 return false;
@@ -147,7 +147,7 @@ angular.module('md-datepicker',[])
 
 
             
-            console.log(scope.months)
+            
         }
         return{
             restrict : 'E',
@@ -196,6 +196,7 @@ angular.module('md-datepicker',[])
                     '    <div> selectMounth == {{selectMounth}}</div> '+
                     '</div> '+
                     '</div>',
+                   
             link : link,
            scope : {
                 mindate : '=?', /* format M/yyyy en_US locale */
