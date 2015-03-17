@@ -48,15 +48,19 @@ angular.module('md-datepicker',[])
             scope.selectMounth = 0;
             scope.calendarDay = [];
 
-
-            if(attrs.mindate){
-                var mindateArray =  attrs.mindate.split('/');
-                min = new Date(parseInt(mindateArray[1]),parseInt(mindateArray[0]) -1,1);
+            try{
+                if(scope.mindate){
+                    var mindateArray =  scope.mindate.split('/');
+                    min = new Date(parseInt(mindateArray[1]),parseInt(mindateArray[0]) -1,1);
+                }
+                if(scope.maxdate){
+                    var maxdateArray =  scope.maxdate.split('/');
+                    max = new Date(parseInt(maxdateArray[1]),parseInt(maxdateArray[0]) -1,1);
+                }
+            }catch(e){
+                console.log(e);
             }
-            if(attrs.maxdate){
-                var maxdateArray =  attrs.maxdate.split('/');
-                max = new Date(parseInt(maxdateArray[1]),parseInt(maxdateArray[0]) -1,1);
-            }
+            
 
             scope.calculateDay = function(dateDay){
                 return (dateDay - startDayOfWeek + 7) % 7;
@@ -109,7 +113,7 @@ angular.module('md-datepicker',[])
                     month.weeks.push( tmpWeek);
                 }
 
-                if (month.year <= scope.pickDate.getFullYear() && month.mounth < scope.pickDate.getMonth()){
+                if (month.year < scope.pickDate.getFullYear() || ( month.year == scope.pickDate.getFullYear() && month.mounth < scope.pickDate.getMonth())){
                     scope.selectMounth++;
                 };
                  
@@ -199,6 +203,7 @@ angular.module('md-datepicker',[])
                    
             link : link,
            scope : {
+                date : '=?',
                 mindate : '=?', /* format M/yyyy en_US locale */
                 maxdate : '=?',
                 _modelValue: '=ngModel',
