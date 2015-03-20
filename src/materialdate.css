@@ -115,6 +115,9 @@
     background-color: #0097A7;
     color: #ffffff;
 }
+.datepicker .md-button.md-default-theme.md-fab[disabled]{
+    color :rgba(0, 0, 0, 0.5);
+}
 .datepicker .md-button.md-default-theme.md-fab{
     background-color: transparent;
     color:inherit;

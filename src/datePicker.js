@@ -3,7 +3,7 @@
  */
 
 angular.module('md-datepicker',[])
-    .directive('datepicker',['$filter',function( $filter) {
+    .directive('datepicker',['$filter','$parse',function($filter, $parse) {
         'use strict';
 
         var frenchDay = ['lundi', 'mardi' , 'mercredi' , 'jeudi' , 'vendredi', 'samedi','dimanche'];
@@ -47,16 +47,34 @@ angular.module('md-datepicker',[])
             scope.months = [];
             scope.selectMounth = 0;
             scope.calendarDay = [];
+            scope.validateFn = angular.noop;
+            scope.cancelFn = angular.noop;
+            scope.okLabelButtom = "OK";
+            scope.cancelLabelButtom = "Cancel"
 
             try{
-                if(scope.mindate){
-                    var mindateArray =  scope.mindate.split('/');
-                    min = new Date(parseInt(mindateArray[1]),parseInt(mindateArray[0]) -1,1);
+                if(angular.isDate(scope.date)){
+                    scope.pickDate = scope.date;
                 }
-                if(scope.maxdate){
-                    var maxdateArray =  scope.maxdate.split('/');
-                    max = new Date(parseInt(maxdateArray[1]),parseInt(maxdateArray[0]) -1,1);
+                if(angular.isDate(scope.mindate)){
+                    min = scope.mindate;
                 }
+                if(angular.isDate(scope.maxdate)){
+                    max = scope.maxdate;
+                }
+                if(scope.onok){
+                    scope.validateFn = $parse(scope.onok); 
+                }
+                if(scope.oncancel){
+                    scope.cancelFn = $parse(scope.oncancel); 
+                }
+                if(scope.oklabel){
+                    scope.okLabelButtom = scope.ok-label;
+                }
+                if(scope.cancellabel){
+                    scope.cancelLabelButtom = scope.cancellabel;
+                }
+
             }catch(e){
                 console.log(e);
             }
@@ -146,6 +164,13 @@ angular.module('md-datepicker',[])
 
             scope.save = function(){
                 scope._modelValue = $filter('date')(scope.pickDate, format);
+                scope.validateFn();
+                
+               // ngModel.$setDirty();
+            }
+             scope.cancel = function(){
+                scope.cancelFn();
+                
                // ngModel.$setDirty();
             }
 
@@ -171,7 +196,7 @@ angular.module('md-datepicker',[])
                      '          <        '+
                     '        </md-button> '+
                     '        <span >{{frenchMounth[months[selectMounth].mounth]}} {{months[selectMounth].year}}</span> '+
-                    '        <md-button  class="right button " flex ng-click="nextMounth()" ng-submit="false" flex> '+
+                    '        <md-button  class="right button " flex ng-click="nextMounth()" ng-submit="false" ng-disabled="selectMounth >= months.length -1"  flex> '+
                     '            > '+
                     '        </md-button> '+
                     '    </div> '+
@@ -183,7 +208,7 @@ angular.module('md-datepicker',[])
                     '           <div ng-repeat=" day in weeks track by $index"  class="calendarDayNumber" flex> '+
                     '               <div ng-if="day === undefined" class="day" noflex></div> '+
                     '               <div ng-if="day != undefined" class="day"  enabled="{{day.enabled}}" data-date="{{day.n}}"  date-selected="{{day.n == pickDate.getDate() && months[selectMounth].mounth == pickDate.getMonth() && months[selectMounth].year == pickDate.getFullYear() }}"  noflex> '+
-                    '                   <md-button class="md-fab" ng-click="selectedDate(months[selectMounth].year,months[selectMounth].mounth,day.n )">'+
+                    '                   <md-button class="md-fab" ng-disabled="!day.enabled" ng-click="selectedDate(months[selectMounth].year,months[selectMounth].mounth,day.n )">'+
                     '                       <span>{{day.n}}</span> '+
                     '                  </md-button>'+
                     '               </div> '+
@@ -191,24 +216,24 @@ angular.module('md-datepicker',[])
                     '        </div> '+
                     '    </div> '+
                     '    <div class="calendar-action"  layout="row">'+
-                    '       <md-button flex>Cancel</md-button>'+
-                    '       <md-button flex ng-click="save()">OK</md-button>'+
+                    '       <md-button flex ng-click="cancel()">{{cancelLabelButtom}}</md-button>'+
+                    '       <md-button flex ng-click="save()">{{okLabelButtom}}</md-button>'+
                     '    </div>'+
-                    '    <div>Mois + année slide</div> '+
-                    '    <div>Calendar</div> '+
-                    '    <div> pickDate.getMonth() == {{pickDate.getMonth()}}'+
-                    '    <div> selectMounth == {{selectMounth}}</div> '+
+
                     '</div> '+
                     '</div>',
                    
             link : link,
            scope : {
                 date : '=?',
-                mindate : '=?', /* format M/yyyy en_US locale */
+                mindate : '=?', /* date */
                 maxdate : '=?',
                 _modelValue: '=ngModel',
-                format : '=?'
-
+                format : '=?',
+                onok : '=?',
+                oncancel : '=?',
+                oklabel : "=?",
+                cancellabel: "=?"
              }
         }
     }]);
