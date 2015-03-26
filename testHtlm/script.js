@@ -11,7 +11,7 @@ myAppModule.controller('totoCtrl', function($scope){
 	$scope.date = new Date();
 	$scope.mindate = $scope.date.getMonth() +1 +'/' + $scope.date.getFullYear();
     $scope.maxdate = new Date($scope.date.getFullYear(), $scope.date.getMonth()+2, $scope.date.getDate() );
-    $scope.date2 = new Date($scope.date.getFullYear(), $scope.date.getMonth()+1, $scope.date.getDate() );
+    $scope.date2 = new Date($scope.date.getFullYear(), $scope.date.getMonth()+1, $scope.date.getDate() +1);
 
     $scope.ok ="YO";
     $scope.cancel="PasYO"

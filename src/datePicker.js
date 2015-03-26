@@ -42,7 +42,8 @@ angular.module('md-datepicker',[])
             scope.frenchMounth = frenchMounth;
             scope.frenchMinDay = frenchMinDay;
             scope.pickDate = new Date();
-            scope.animateDate = "animateDate"
+            scope.pickDateSelect = $filter('date')(scope.pickDate, 'yyyyMd');
+            scope.animateDate = "animateDate";
             var startDayOfWeek= 1; /* Day begin by Sunday in javasript 0:Sunday, 1:Monday, ... */
             scope.months = [];
             scope.selectMounth = 0;
@@ -55,6 +56,7 @@ angular.module('md-datepicker',[])
             try{
                 if(angular.isDate(scope.date)){
                     scope.pickDate = scope.date;
+                    scope.pickDateSelect = $filter('date')(scope.pickDate, 'yyyyMd');
                 }
                 if(angular.isDate(scope.mindate)){
                     min = scope.mindate;
@@ -69,7 +71,7 @@ angular.module('md-datepicker',[])
                     scope.cancelFn = $parse(scope.oncancel); 
                 }
                 if(scope.oklabel){
-                    scope.okLabelButtom = scope.ok-label;
+                    scope.okLabelButtom = scope.oklabel;
                 }
                 if(scope.cancellabel){
                     scope.cancelLabelButtom = scope.cancellabel;
@@ -144,7 +146,6 @@ angular.module('md-datepicker',[])
                 }
 
             }
-            console.log(scope.months)
             var format = attrs.format || 'shortDate';
             scope.nextMounth = function(){
                 scope.selectMounth++;
@@ -155,6 +156,7 @@ angular.module('md-datepicker',[])
             };
             scope.selectedDate = function(year,month,day){
                 scope.pickDate = new Date(year,month,day);
+                scope.pickDateSelect = $filter('date')(scope.pickDate, 'yyyyMd');
                 if(scope.animateDate == "scope.animateDate"){
                     scope.animateDate = "";
                 }else{
@@ -173,9 +175,10 @@ angular.module('md-datepicker',[])
                 
                // ngModel.$setDirty();
             }
+            scope.dateSelected = function(year,month,day){
+                return (scope.pickDateSelect == year+""+(month+1)+""+day+"")?"dateSelected":"";
 
-
-            
+            }
             
         }
         return{
@@ -207,7 +210,7 @@ angular.module('md-datepicker',[])
                     '       <div ng-repeat=" weeks in months[selectMounth].weeks track by $index"  class="row" > '+
                     '           <div ng-repeat=" day in weeks track by $index"  class="calendarDayNumber" flex> '+
                     '               <div ng-if="day === undefined" class="day" noflex></div> '+
-                    '               <div ng-if="day != undefined" class="day"  enabled="{{day.enabled}}" data-date="{{day.n}}"  date-selected="{{day.n == pickDate.getDate() && months[selectMounth].mounth == pickDate.getMonth() && months[selectMounth].year == pickDate.getFullYear() }}"  noflex> '+
+                    '               <div ng-if="day != undefined" class="day"  enabled="{{day.enabled}}" data-date="{{day.n}}"  ng-class="dateSelected(months[selectMounth].year,months[selectMounth].mounth,day.n )"  noflex> '+
                     '                   <md-button class="md-fab" ng-disabled="!day.enabled" ng-click="selectedDate(months[selectMounth].year,months[selectMounth].mounth,day.n )">'+
                     '                       <span>{{day.n}}</span> '+
                     '                  </md-button>'+
@@ -216,8 +219,8 @@ angular.module('md-datepicker',[])
                     '        </div> '+
                     '    </div> '+
                     '    <div class="calendar-action"  layout="row">'+
-                    '       <md-button flex ng-click="cancel()">{{cancelLabelButtom}}</md-button>'+
-                    '       <md-button flex ng-click="save()">{{okLabelButtom}}</md-button>'+
+                    '       <md-button flex ng-click="cancel()" flex>{{cancelLabelButtom}}</md-button>'+
+                    '       <md-button flex ng-click="save()" flex>{{okLabelButtom}}</md-button>'+
                     '    </div>'+
 
                     '</div> '+
