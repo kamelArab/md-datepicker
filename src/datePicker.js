@@ -3,7 +3,143 @@
  */
 
 angular.module('md-datepicker',[])
-    .directive('datepicker',['$filter','$parse',function($filter, $parse) {
+    .factory('datepickerSrv',[function(){
+        'use strict';
+        var startDayOfWeek = 1; /* Day begin by Sunday in javasript 0:Sunday, 1:Monday, ... */
+        var frenchDay = ['lundi', 'mardi' , 'mercredi' , 'jeudi' , 'vendredi', 'samedi','dimanche'];
+        var frenchMinDay = ['L', 'M' , 'M' , 'J' , 'V', 'S','D'];
+        var frenchMounth = ['janvier' , 'fevrier', 'mars' , 'avril' , 'mai' ,'juin' , 'juillet' , 'aout', 'septembre' , 'octobre' , 'novembre' , 'decembre'];
+
+        //polyfill Array.prototype.findIndex
+        // Array.prototype.findIndex ( predicate [ , thisArg ] ) :
+        //Draft for 6th Edition  ECMA-262 (ES6)
+        // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-array.prototype.findindex
+        if (!Array.prototype.findIndex) {
+            Array.prototype.findIndex = function(predicate) {
+                if (this == null) {
+                    throw new TypeError('Array.prototype.findIndex appelé sur null ou undefined');
+                }
+                if (typeof predicate !== 'function') {
+                    throw new TypeError('predicate doit être une fonction');
+                }
+                var list = Object(this);
+                var length = list.length >>> 0;
+                var thisArg = arguments[1];
+                var value;
+
+                for (var i = 0; i < length; i++) {
+                    value = list[i];
+                    if (predicate.call(thisArg, value, i, list)) {
+                        return i;
+                    }
+                }
+                return -1;
+            };
+        }
+        /**
+         *obj : array with mounth and year ex: [1,2015] February 2015
+         *
+         * return array [nounth, year] ex: cleanMonthDateArrayObject([15,2014]) = [3,2015]
+         * */
+        var cleanMonthDateArrayObject = function(obj){
+            var m = obj[0] % 12;
+            return [m < 0 ? m + 12: m, obj[1]+Math.floor(obj[0]/12)];
+        };
+        /**
+         * This function return a array of all mounth between minDate and maxDate
+         *   var month = {
+         *          weeks:[], //
+         *          days: [],
+         *          name: "",  //Name of mouth
+         *          mounth: curMonth, // (int) mounth
+         *          year: curYear
+         *    };
+         * @param minDate
+         * @param maxDate
+         * @param date
+         */
+
+        var getMountDto = function(minDate, maxDate, date){
+
+            var start, end, currentDay, curMonth, curYear ;
+            start = cleanMonthDateArrayObject([minDate.getMonth(),minDate.getFullYear()]);
+            end = cleanMonthDateArrayObject([maxDate.getMonth(),maxDate.getFullYear()]);
+            currentDay= date.getDate();
+            curMonth = start[0];
+            curYear = start[1];
+            var dateTmp, startPoint, endPoint;
+
+            var months = [];
+            while(curYear < end[1] || (curYear == end[1] && curMonth <= end[0])){
+
+                var month = {
+                    weeks:[],
+                    days: [],
+                    name: "",
+                    mounth: curMonth,
+                    year: curYear
+                };
+                dateTmp = new Date(curYear, curMonth, 1);
+                startPoint = calculateDay(dateTmp.getDay());
+                month.name = frenchMounth[curMonth];
+                dateTmp = new Date(curYear, curMonth +1, 0); /*Last day in same mounth*/
+                endPoint = dateTmp.getDate();
+
+                for(var i=0;i<startPoint;i++){
+                    month.days.push(undefined);
+                }
+
+                for(var i=1;i<=endPoint;i++){
+                    var thisDate = new Date(curYear, curMonth, i);
+                    month.days.push({
+                        n:i,
+                        day: frenchDay[calculateDay(thisDate.getDay())],
+                        enabled: thisDate >= minDate && thisDate <= maxDate
+                    });
+                }
+                for(var i=0; i<=5 ; i++){
+                    var start = i*7;
+                    var add = 7;
+                    var tmpWeek = month.days.slice(start, i*7 + add);
+                    while(tmpWeek.length <7){
+                        tmpWeek.push(undefined);
+                    }
+                    month.weeks.push( tmpWeek);
+                }
+                months.push(month);
+
+                curMonth++;
+                if(curMonth == 12){
+                    curMonth = 0;
+                    curYear++;
+                }
+            }
+            return months
+
+        }
+        var getIndexOfDate = function(months, date){
+            var index = -1;
+            if(!angular.isDate(date)){
+                return index;
+            }else{
+                var curMount = date.getMonth();
+                var curYear = date.getFullYear();
+                index =  months.findIndex(function(month){
+                    return month.year == curYear && month.mounth == curMount;
+                    });
+            }
+            return index
+        };
+        var calculateDay = function(dateDay){
+            return (dateDay - startDayOfWeek + 7) % 7;
+        };
+        return {
+            getMountDto : getMountDto,
+            getIndexOfDate : getIndexOfDate
+
+        }
+    }])
+    .directive('datepicker',['$filter','$parse','datepickerSrv',function($filter, $parse, datepickerSrv) {
         'use strict';
 
         var frenchDay = ['lundi', 'mardi' , 'mercredi' , 'jeudi' , 'vendredi', 'samedi','dimanche'];
@@ -86,66 +222,10 @@ angular.module('md-datepicker',[])
                 return (dateDay - startDayOfWeek + 7) % 7;
             };
 
-            var date, start, end, currentDay, curMonth, curYear ;
-            start = cleanMonthDateArrayObject([min.getMonth(),min.getFullYear()]);
-            end = cleanMonthDateArrayObject([max.getMonth(),max.getFullYear()]);
-            currentDay= scope.pickDate.getDate();
-            curMonth = start[0];
-            curYear = start[1];
-            var date, startPoint, endPoint;
 
-            scope.months = [];
-            while(curYear < end[1] || (curYear == end[1] && curMonth <= end[0])){
+            scope.months = datepickerSrv.getMountDto(min, max, scope.pickDate);
+            scope.selectMounth = datepickerSrv.getIndexOfDate(scope.months, scope.pickDate)
 
-                var month = {
-                    weeks:[],
-                    days: [],
-                    name: "",
-                    mounth: curMonth,
-                    year: curYear
-                };
-
-                date = new Date(curYear, curMonth, 1);
-                startPoint = scope.calculateDay(date.getDay());
-                month.name = frenchMounth[curMonth];
-                date = new Date(curYear, curMonth +1, 0); /*Last day in same mounth*/
-                endPoint = date.getDate();
-
-                for(var i=0;i<startPoint;i++){
-                    month.days.push(undefined);
-                }
-
-                for(var i=1;i<=endPoint;i++){
-                    var thisDate = new Date(curYear, curMonth, i);
-                    month.days.push({
-                        n:i,
-                        day: frenchDay[scope.calculateDay(thisDate.getDay())],
-                        enabled: thisDate >= min && thisDate <= max
-                    });
-                }
-                for(var i=0; i<=5 ; i++){
-                    var start = i*7;
-                    var add = 7;
-                    var tmpWeek = month.days.slice(start, i*7 + add);
-                    while(tmpWeek.length <7){
-                        tmpWeek.push(undefined);
-                    }
-                    month.weeks.push( tmpWeek);
-                }
-
-                if (month.year < scope.pickDate.getFullYear() || ( month.year == scope.pickDate.getFullYear() && month.mounth < scope.pickDate.getMonth())){
-                    scope.selectMounth++;
-                };
-                 
-                scope.months.push(month);
-
-                curMonth++;
-                if(curMonth == 12){
-                    curMonth = 0;
-                    curYear++;
-                }
-
-            }
             var format = attrs.format || 'shortDate';
             scope.nextMounth = function(){
                 scope.selectMounth++;
