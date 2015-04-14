@@ -7,3 +7,5 @@ plugins/
 .idea
 *.iml
 www/lib
+bower_components
+md-datepicker.iml
