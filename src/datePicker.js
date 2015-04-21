@@ -3,7 +3,7 @@
  */
 
 angular.module('md-datepicker',[])
-    .factory('datepickerSrv',[function(){
+    .factory('datepickerSrv',['$locale','$filter', function($locale, $filter){
         'use strict';
         var startDayOfWeek = 1; /* Day begin by Sunday in javasript 0:Sunday, 1:Monday, ... */
         var frenchDay = ['lundi', 'mardi' , 'mercredi' , 'jeudi' , 'vendredi', 'samedi','dimanche'];
@@ -81,7 +81,7 @@ angular.module('md-datepicker',[])
                 };
                 dateTmp = new Date(curYear, curMonth, 1);
                 startPoint = calculateDay(dateTmp.getDay());
-                month.name = frenchMounth[curMonth];
+                month.name = $filter('date')(dateTmp, "MMMM");
                 dateTmp = new Date(curYear, curMonth +1, 0); /*Last day in same mounth*/
                 endPoint = dateTmp.getDate();
 
@@ -93,7 +93,7 @@ angular.module('md-datepicker',[])
                     var thisDate = new Date(curYear, curMonth, i);
                     month.days.push({
                         n:i,
-                        day: frenchDay[calculateDay(thisDate.getDay())],
+                        day: $locale.DATETIME_FORMATS.DAY[calculateDay(thisDate.getDay())],
                         enabled: thisDate >= minDate && thisDate <= maxDate
                     });
                 }
@@ -224,7 +224,9 @@ angular.module('md-datepicker',[])
 
 
             scope.months = datepickerSrv.getMountDto(min, max, scope.pickDate);
-            scope.selectMounth = datepickerSrv.getIndexOfDate(scope.months, scope.pickDate)
+            scope.selectMounth = datepickerSrv.getIndexOfDate(scope.months, scope.pickDate);
+
+            console.log(scope.months)
 
             var format = attrs.format || 'shortDate';
             scope.nextMounth = function(){
@@ -266,9 +268,9 @@ angular.module('md-datepicker',[])
             require: '^ngModel',
             template : '<div class="datepicker">'+ 
                        '    <div class="datepicker header md-primary" layout="column" layout-align="center center" >' +
-                        '<div class="datepicker header day {{animateDate}}"> {{frenchDay[calculateDay(pickDate.getDay())]}}</div> '+
+                        '<div class="datepicker header day {{animateDate}}"> {{ pickDate | date:"EEEE" }}</div> '+
                         '<div class="datepicker header body"> '+
-                        '    <div class="mounth">{{frenchMounth[pickDate.getMonth()]}}</div> '+
+                        '    <div class="mounth">{{ pickDate | date:"MMMM" }}</div> '+
                         '    <div class="day">{{pickDate.getDate()}}</div> '+
                         '    <div class="year">{{pickDate.getFullYear()}}</div> '+
                         '</div> '+
@@ -278,7 +280,7 @@ angular.module('md-datepicker',[])
                     '        <md-button  class="left button" flex  ng-click="previousMounth()" ng-disabled="selectMounth<=0" flex> '+
                      '          <        '+
                     '        </md-button> '+
-                    '        <span >{{frenchMounth[months[selectMounth].mounth]}} {{months[selectMounth].year}}</span> '+
+                    '        <span >{{ months[selectMounth].name }} {{months[selectMounth].year}}</span> '+
                     '        <md-button  class="right button " flex ng-click="nextMounth()" ng-submit="false" ng-disabled="selectMounth >= months.length -1"  flex> '+
                     '            > '+
                     '        </md-button> '+
