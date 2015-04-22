@@ -5,10 +5,18 @@
 angular.module('md-datepicker',[])
     .factory('datepickerSrv',['$locale','$filter', function($locale, $filter){
         'use strict';
+
+        var reduceAndUpperDay = function(day){
+            return day.substring(0,1).toUpperCase();
+        }
+
+
         var startDayOfWeek = 1; /* Day begin by Sunday in javasript 0:Sunday, 1:Monday, ... */
-        var frenchDay = ['lundi', 'mardi' , 'mercredi' , 'jeudi' , 'vendredi', 'samedi','dimanche'];
-        var frenchMinDay = ['L', 'M' , 'M' , 'J' , 'V', 'S','D'];
-        var frenchMounth = ['janvier' , 'fevrier', 'mars' , 'avril' , 'mai' ,'juin' , 'juillet' , 'aout', 'septembre' , 'octobre' , 'novembre' , 'decembre'];
+        var tmpSmallDay = $locale.DATETIME_FORMATS.DAY.slice(startDayOfWeek).concat($locale.DATETIME_FORMATS.DAY.slice(0, startDayOfWeek));
+        var verySmallDay =  tmpSmallDay.map( function(value){
+            return value.substring(0,1).toUpperCase();
+        });
+
 
         //polyfill Array.prototype.findIndex
         // Array.prototype.findIndex ( predicate [ , thisArg ] ) :
@@ -135,16 +143,13 @@ angular.module('md-datepicker',[])
         };
         return {
             getMountDto : getMountDto,
-            getIndexOfDate : getIndexOfDate
+            getIndexOfDate : getIndexOfDate,
+            getVerySmallDay : verySmallDay
 
         }
     }])
     .directive('datepicker',['$filter','$parse','datepickerSrv',function($filter, $parse, datepickerSrv) {
         'use strict';
-
-        var frenchDay = ['lundi', 'mardi' , 'mercredi' , 'jeudi' , 'vendredi', 'samedi','dimanche'];
-        var frenchMinDay = ['L', 'M' , 'M' , 'J' , 'V', 'S','D'];
-        var frenchMounth = ['janvier' , 'fevrier', 'mars' , 'avril' , 'mai' ,'juin' , 'juillet' , 'aout', 'septembre' , 'octobre' , 'novembre' , 'decembre'];
 
 
         /**
@@ -170,13 +175,11 @@ angular.module('md-datepicker',[])
         };
 
         function controller($scope, $element){
-           
+            $scope.frenchMinDay = datepickerSrv.getVerySmallDay;
         }
 
         function link(scope, element, attrs){
-            scope.frenchDay = frenchDay;
-            scope.frenchMounth = frenchMounth;
-            scope.frenchMinDay = frenchMinDay;
+
             scope.pickDate = new Date();
             scope.pickDateSelect = $filter('date')(scope.pickDate, 'yyyyMd');
             scope.animateDate = "animateDate";
@@ -309,7 +312,8 @@ angular.module('md-datepicker',[])
                     '</div>',
                    
             link : link,
-           scope : {
+            controller :controller,
+            scope : {
                 date : '=?',
                 mindate : '=?', /* date */
                 maxdate : '=?',
@@ -319,7 +323,7 @@ angular.module('md-datepicker',[])
                 oncancel : '=?',
                 oklabel : "=?",
                 cancellabel: "=?"
-             }
+            }
         }
     }]);
 
