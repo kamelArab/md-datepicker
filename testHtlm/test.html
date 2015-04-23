@@ -33,15 +33,22 @@
 </head>
 <body ng-app="myApp" ng-controller="totoCtrl">
 
-    <div style="height: 1000px;">
+    <div style="height: 900px;">
     {{ 'World' | greet }} // {{toto}}
     {{ date | date:'MM/yyyy'}}
     <div>
         <input type="text" ng-model="toto" >
     </div>
 
-    <datepicker ng-model="toto" format="dd-MM-yyyy" mindate="date" maxdate="maxdate" onok="coucou" oncancel="coucou" date="date"
-    oklabel="'ok'" cancel="cancel"
+    <datepicker ng-model="toto"
+                format="dd-MM-yyyy"
+                mindate="date"
+                maxdate="maxdate"
+                onok="coucou"
+                oncancel="coucou"
+                date="date"
+                oklabel="'ok'"
+                cancel="cancel"
     ></datepicker>
 </div>
 </body>
