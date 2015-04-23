@@ -1,7 +1,7 @@
 
 **md-datepicker is a Angular directive date picker looking android calendar make with angular material.**
 
- ### Version
+### Version
 0.0.1
 
 ### Dependencies
@@ -28,5 +28,6 @@
 [AngularJS]:http://angularjs.org
 [Angular Material]:http://material.angularjs.org
 [Angular I18n]:https://docs.angularjs.org/guide/i18n
-[sample1]./doc/sample/sample1.png
+[sample1]:https://github.com/kamelArab/md-datepicker/tree/master/doc/sample/sample1.png
+
 
