@@ -18,7 +18,7 @@
     <script src="../bower_components/hammerjs/hammer.min.js"></script>
     <script src="../bower_components/angular-aria/angular-aria.min.js"></script>
     <script src="../bower_components/angular-material/angular-material.min.js"></script>
-    <script src="../bower_components/angular-i18n/angular-locale_en.js"></script>
+    <script src="../bower_components/angular-i18n/angular-locale_fr.js"></script>
     <script src="../bower_components/angular-animate/angular-animate.min.js"></script>
 
 <!-- SRC -->
@@ -33,7 +33,7 @@
 </head>
 <body ng-app="myApp" ng-controller="totoCtrl">
 
-    <div style="height: 1200px;">
+    <div style="height: 1000px;">
     {{ 'World' | greet }} // {{toto}}
     {{ date | date:'MM/yyyy'}}
     <div>
@@ -41,7 +41,7 @@
     </div>
 
     <datepicker ng-model="toto" format="dd-MM-yyyy" mindate="date" maxdate="maxdate" onok="coucou" oncancel="coucou" date="date"
-    oklabel="ok" cancel="cancel"
+    oklabel="'ok'" cancel="cancel"
     ></datepicker>
 </div>
 </body>

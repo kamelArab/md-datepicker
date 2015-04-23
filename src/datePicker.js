@@ -6,17 +6,30 @@ angular.module('md-datepicker',[])
     .factory('datepickerSrv',['$locale','$filter', function($locale, $filter){
         'use strict';
 
-        var reduceAndUpperDay = function(day){
-            return day.substring(0,1).toUpperCase();
+        var startDayOfWeek = 1; /* Day begin by Sunday in javasript 0:Sunday, 1:Monday, ... */
+
+        var tmpSmallDay,verySmallDay;
+        var initStartDay = function(startDay){
+            if(angular.isDefined(startDay)){
+                startDayOfWeek = parseInt(startDay);
+            }
+
+            if(startDayOfWeek>0){
+                tmpSmallDay = $locale.DATETIME_FORMATS.DAY.slice(startDayOfWeek).concat($locale.DATETIME_FORMATS.DAY.slice(0, startDayOfWeek));
+            }else{
+                tmpSmallDay = $locale.DATETIME_FORMATS.DAY
+            }
+            verySmallDay =  tmpSmallDay.map( function(value){
+                return value.substring(0,1).toUpperCase();
+            });
+            return verySmallDay
         }
 
 
-        var startDayOfWeek = 1; /* Day begin by Sunday in javasript 0:Sunday, 1:Monday, ... */
-        var tmpSmallDay = $locale.DATETIME_FORMATS.DAY.slice(startDayOfWeek).concat($locale.DATETIME_FORMATS.DAY.slice(0, startDayOfWeek));
-        var verySmallDay =  tmpSmallDay.map( function(value){
+        tmpSmallDay = $locale.DATETIME_FORMATS.DAY.slice(startDayOfWeek).concat($locale.DATETIME_FORMATS.DAY.slice(0, startDayOfWeek));
+        verySmallDay =  tmpSmallDay.map( function(value){
             return value.substring(0,1).toUpperCase();
         });
-
 
         //polyfill Array.prototype.findIndex
         // Array.prototype.findIndex ( predicate [ , thisArg ] ) :
@@ -67,8 +80,10 @@ angular.module('md-datepicker',[])
          * @param date
          */
 
-        var getMountDto = function(minDate, maxDate, date){
-
+        var getMountDto = function(minDate, maxDate, date, starday){
+            if(angular.isUndefined(starday)){
+                starday = startDayOfWeek
+            }
             var start, end, currentDay, curMonth, curYear ;
             start = cleanMonthDateArrayObject([minDate.getMonth(),minDate.getFullYear()]);
             end = cleanMonthDateArrayObject([maxDate.getMonth(),maxDate.getFullYear()]);
@@ -88,7 +103,7 @@ angular.module('md-datepicker',[])
                     year: curYear
                 };
                 dateTmp = new Date(curYear, curMonth, 1);
-                startPoint = calculateDay(dateTmp.getDay());
+                startPoint = calculateDay(dateTmp.getDay(), starday);
                 month.name = $filter('date')(dateTmp, "MMMM");
                 dateTmp = new Date(curYear, curMonth +1, 0); /*Last day in same mounth*/
                 endPoint = dateTmp.getDate();
@@ -101,7 +116,7 @@ angular.module('md-datepicker',[])
                     var thisDate = new Date(curYear, curMonth, i);
                     month.days.push({
                         n:i,
-                        day: $locale.DATETIME_FORMATS.DAY[calculateDay(thisDate.getDay())],
+                        day: $locale.DATETIME_FORMATS.DAY[calculateDay(thisDate.getDay(), starday)],
                         enabled: thisDate >= minDate && thisDate <= maxDate
                     });
                 }
@@ -138,10 +153,14 @@ angular.module('md-datepicker',[])
             }
             return index
         };
-        var calculateDay = function(dateDay){
-            return (dateDay - startDayOfWeek + 7) % 7;
+        var calculateDay = function(dateDay, startDay){
+            if(angular.isUndefined(startDay)){
+                startDay = startDayOfWeek
+            }
+            return (dateDay - startDay + 7) % 7;
         };
         return {
+            initStartDay : initStartDay,
             getMountDto : getMountDto,
             getIndexOfDate : getIndexOfDate,
             getVerySmallDay : verySmallDay
@@ -175,7 +194,7 @@ angular.module('md-datepicker',[])
         };
 
         function controller($scope, $element){
-            $scope.frenchMinDay = datepickerSrv.getVerySmallDay;
+            $scope.frenchMinDay = datepickerSrv.initStartDay($scope.starDayOfWeek);
         }
 
         function link(scope, element, attrs){
@@ -215,18 +234,17 @@ angular.module('md-datepicker',[])
                 if(scope.cancellabel){
                     scope.cancelLabelButtom = scope.cancellabel;
                 }
+                if(scope.starDayOfWeek){
+                    startDayOfWeek = scope.starDayOfWeek;
+                }
+
+
 
             }catch(e){
                 console.log(e);
             }
-            
 
-            scope.calculateDay = function(dateDay){
-                return (dateDay - startDayOfWeek + 7) % 7;
-            };
-
-
-            scope.months = datepickerSrv.getMountDto(min, max, scope.pickDate);
+            scope.months = datepickerSrv.getMountDto(min, max, scope.pickDate, startDayOfWeek);
             scope.selectMounth = datepickerSrv.getIndexOfDate(scope.months, scope.pickDate);
 
             console.log(scope.months)
@@ -307,7 +325,6 @@ angular.module('md-datepicker',[])
                     '       <md-button flex ng-click="cancel()" flex>{{cancelLabelButtom}}</md-button>'+
                     '       <md-button flex ng-click="save()" flex>{{okLabelButtom}}</md-button>'+
                     '    </div>'+
-
                     '</div> '+
                     '</div>',
                    
@@ -322,7 +339,8 @@ angular.module('md-datepicker',[])
                 onok : '=?',
                 oncancel : '=?',
                 oklabel : "=?",
-                cancellabel: "=?"
+                cancellabel: "=?",
+                starDayOfWeek : "@?"
             }
         }
     }]);
