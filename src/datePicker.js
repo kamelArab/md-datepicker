@@ -2,7 +2,7 @@
  * Created by karab on 16/02/15.
  */
 
-angular.module('md-datepicker',[])
+angular.module('md-datepicker.service',[])
     .factory('datepickerSrv',['$locale','$filter', function($locale, $filter){
         'use strict';
 
@@ -78,16 +78,17 @@ angular.module('md-datepicker',[])
          * @param minDate
          * @param maxDate
          * @param date
+         * @param startday Start day of week  0:Sunday, 1:Monday... Default startday == startDayOfWeek == 1
          */
 
-        var getMountDto = function(minDate, maxDate, date, starday){
-            if(angular.isUndefined(starday)){
-                starday = startDayOfWeek
+
+        var getMountDto = function(minDate, maxDate,  startday){
+            if(angular.isUndefined(startday)){
+                startday = startDayOfWeek
             }
             var start, end, currentDay, curMonth, curYear ;
             start = cleanMonthDateArrayObject([minDate.getMonth(),minDate.getFullYear()]);
             end = cleanMonthDateArrayObject([maxDate.getMonth(),maxDate.getFullYear()]);
-            currentDay= date.getDate();
             curMonth = start[0];
             curYear = start[1];
             var dateTmp, startPoint, endPoint;
@@ -103,7 +104,7 @@ angular.module('md-datepicker',[])
                     year: curYear
                 };
                 dateTmp = new Date(curYear, curMonth, 1);
-                startPoint = calculateDay(dateTmp.getDay(), starday);
+                startPoint = calculateDay(dateTmp.getDay(), startday);
                 month.name = $filter('date')(dateTmp, "MMMM");
                 dateTmp = new Date(curYear, curMonth +1, 0); /*Last day in same mounth*/
                 endPoint = dateTmp.getDate();
@@ -116,7 +117,7 @@ angular.module('md-datepicker',[])
                     var thisDate = new Date(curYear, curMonth, i);
                     month.days.push({
                         n:i,
-                        day: $locale.DATETIME_FORMATS.DAY[calculateDay(thisDate.getDay(), starday)],
+                        day: $locale.DATETIME_FORMATS.DAY[calculateDay(thisDate.getDay(), startday)],
                         enabled: thisDate >= minDate && thisDate <= maxDate
                     });
                 }
@@ -166,8 +167,8 @@ angular.module('md-datepicker',[])
             getVerySmallDay : verySmallDay
 
         }
-    }])
-    .directive('datepicker',['$filter','$parse','datepickerSrv',function($filter, $parse, datepickerSrv) {
+    }]);
+angular.module('md-datepicker',['md-datepicker.service']).directive('datepicker',['$filter','$parse','datepickerSrv',function($filter, $parse, datepickerSrv) {
         'use strict';
 
 
