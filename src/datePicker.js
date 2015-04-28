@@ -112,12 +112,11 @@ angular.module('md-datepicker.service',[])
                 for(var i=0;i<startPoint;i++){
                     month.days.push(undefined);
                 }
-
                 for(var i=1;i<=endPoint;i++){
                     var thisDate = new Date(curYear, curMonth, i);
                     month.days.push({
                         n:i,
-                        day: $locale.DATETIME_FORMATS.DAY[calculateDay(thisDate.getDay(), startday)],
+                        day: $locale.DATETIME_FORMATS.DAY[thisDate.getDay()],
                         enabled: thisDate >= minDate && thisDate <= maxDate
                     });
                 }
@@ -141,7 +140,7 @@ angular.module('md-datepicker.service',[])
             return months
 
         }
-        var getIndexOfDate = function(months, date){
+        var getIndexOfMounthDto = function(months, date){
             var index = -1;
             if(!angular.isDate(date)){
                 return index;
@@ -163,7 +162,7 @@ angular.module('md-datepicker.service',[])
         return {
             initStartDay : initStartDay,
             getMountDto : getMountDto,
-            getIndexOfDate : getIndexOfDate,
+            getIndexOfMounthDto : getIndexOfMounthDto,
             getVerySmallDay : verySmallDay
 
         }
@@ -239,14 +238,12 @@ angular.module('md-datepicker',['md-datepicker.service']).directive('datepicker'
                     startDayOfWeek = scope.starDayOfWeek;
                 }
 
-
-
             }catch(e){
                 console.log(e);
             }
 
             scope.months = datepickerSrv.getMountDto(min, max, scope.pickDate, startDayOfWeek);
-            scope.selectMounth = datepickerSrv.getIndexOfDate(scope.months, scope.pickDate);
+            scope.selectMounth = datepickerSrv.getIndexOfMounthDto(scope.months, scope.pickDate);
 
             console.log(scope.months)
 
