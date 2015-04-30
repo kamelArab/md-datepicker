@@ -82,7 +82,7 @@ angular.module('md-datepicker.service',[])
          */
 
 
-        var getMountDto = function(minDate, maxDate,  startday){
+        var getMountDto = function(minDate, maxDate,  startday, disableOuterDate){
             if(angular.isUndefined(startday)){
                 startday = startDayOfWeek
             }
@@ -117,7 +117,7 @@ angular.module('md-datepicker.service',[])
                     month.days.push({
                         n:i,
                         day: $locale.DATETIME_FORMATS.DAY[thisDate.getDay()],
-                        enabled: thisDate >= minDate && thisDate <= maxDate
+                        enabled: (thisDate >= minDate && thisDate <= maxDate || !disableOuterDate)
                     });
                 }
                 for(var i=0; i<=5 ; i++){
@@ -209,7 +209,8 @@ angular.module('md-datepicker',['md-datepicker.service']).directive('datepicker'
             scope.validateFn = angular.noop;
             scope.cancelFn = angular.noop;
             scope.okLabelButtom = "OK";
-            scope.cancelLabelButtom = "Cancel"
+            scope.cancelLabelButtom = "Cancel";
+            var disableOuterDate = false;
 
             try{
                 if(angular.isDate(scope.date)){
@@ -237,12 +238,15 @@ angular.module('md-datepicker',['md-datepicker.service']).directive('datepicker'
                 if(scope.starDayOfWeek){
                     startDayOfWeek = scope.starDayOfWeek;
                 }
+                if(scope.disableOuterDate){
+                    disableOuterDate= scope.disableOuterDate;
+                }
 
             }catch(e){
                 console.log(e);
             }
 
-            scope.months = datepickerSrv.getMountDto(min, max, scope.pickDate, startDayOfWeek);
+            scope.months = datepickerSrv.getMountDto(min, max, startDayOfWeek, disableOuterDate);
             scope.selectMounth = datepickerSrv.getIndexOfMounthDto(scope.months, scope.pickDate);
 
             console.log(scope.months)
@@ -338,7 +342,8 @@ angular.module('md-datepicker',['md-datepicker.service']).directive('datepicker'
                 oncancel : '=?',
                 oklabel : "=?",
                 cancellabel: "=?",
-                starDayOfWeek : "@?"
+                starDayOfWeek : "@?",
+                disableOuterDate : "@?"
             }
         }
     }]);
